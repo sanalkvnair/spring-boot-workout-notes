@@ -1,1 +1,10 @@
+server:
+  port: 7070
+spring:
+  application:
+    name: workout-notes
+  data:
+    mongodb:
+      database: workout-notes
+      auto-index-creation: true
 

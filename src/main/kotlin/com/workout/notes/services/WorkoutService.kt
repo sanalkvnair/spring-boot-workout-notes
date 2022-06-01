@@ -5,6 +5,8 @@ import com.workout.notes.models.Workout
 import com.workout.notes.models.WorkoutRoutine
 import com.workout.notes.models.WorkoutTrack
 import com.workout.notes.repositories.WorkoutRepository
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import reactor.core.publisher.Mono
 
 interface WorkoutService {
@@ -13,8 +15,15 @@ interface WorkoutService {
 }
 
 class WorkoutServiceImpl(private val workoutRepository: WorkoutRepository): WorkoutService {
+
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(WorkoutServiceImpl::class.java)
+    }
     override fun createAndUpdateWorkout(workoutDto: WorkoutDto): Mono<WorkoutDto> {
-        return workoutRepository.save(workoutModelMapper(workoutDto)).map { workoutDtoMapper(it) }
+        logger.info("Creating/Updating workout for date: ${workoutDto.date} begin.")
+        return workoutRepository.save(workoutModelMapper(workoutDto)).map { workoutDtoMapper(it) }.doOnSuccess {
+            logger.info("Creating/Updating workout for date: ${workoutDto.date} successful.")
+        }
     }
 
     override fun getWorkout(date: String): Mono<WorkoutDto> {

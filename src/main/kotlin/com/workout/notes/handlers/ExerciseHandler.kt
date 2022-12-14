@@ -20,21 +20,22 @@ class ExerciseHandler(private val exerciseService: ExerciseService) {
 
     fun getExercises(serverRequest: ServerRequest): Mono<ServerResponse> {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-            .body(exerciseService.getWorkouts()).also {
+            .body(exerciseService.getWorkouts(serverRequest.headers().firstHeader("userId") ?: "")).also {
                 logger.info("Exercise list fetched.")
             }
     }
 
     fun getExercise(serverRequest: ServerRequest): Mono<ServerResponse> {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-            .body(exerciseService.getWorkout(serverRequest.pathVariable("id"))).also {
+            .body(exerciseService.getWorkout(serverRequest.pathVariable("id"),
+                serverRequest.headers().firstHeader("userId") ?: "")).also {
                 logger.info("Exercise ${serverRequest.pathVariable("id")} fetched.")
             }
     }
 
     fun createExercise(serverRequest: ServerRequest): Mono<ServerResponse> {
         return serverRequest.bodyToMono(ExerciseDto::class.java)
-            .flatMap { exerciseDto -> exerciseService.createWorkout(exerciseDto) }
+            .flatMap { exerciseDto -> exerciseService.createWorkout(exerciseDto, serverRequest.headers().firstHeader("userId") ?: "") }
             .flatMap {
                 ServerResponse.created(URI.create("/exercise/${it.id}")).contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(it))
             }.also {
@@ -44,7 +45,9 @@ class ExerciseHandler(private val exerciseService: ExerciseService) {
 
     fun updateExercise(serverRequest: ServerRequest): Mono<ServerResponse> {
         return serverRequest.bodyToMono(ExerciseDto::class.java)
-            .flatMap { exerciseDto -> exerciseService.updateWorkout(serverRequest.pathVariable("id"), exerciseDto) }
+            .flatMap { exerciseDto -> exerciseService.updateWorkout(serverRequest.pathVariable("id"),
+                exerciseDto,
+                serverRequest.headers().firstHeader("userId") ?: "") }
             .flatMap {
                 ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(it))
             }.also {
@@ -53,7 +56,8 @@ class ExerciseHandler(private val exerciseService: ExerciseService) {
     }
 
     fun deleteExercise(serverRequest: ServerRequest): Mono<ServerResponse> {
-        return exerciseService.deleteWorkout(serverRequest.pathVariable("id")).then(ServerResponse.noContent().build()).also {
+        return exerciseService.deleteWorkout(serverRequest.pathVariable("id"),
+            serverRequest.headers().firstHeader("userId") ?: "").then(ServerResponse.noContent().build()).also {
             logger.info("Exercise ${serverRequest.pathVariable("id")} deleted.")
         }
     }

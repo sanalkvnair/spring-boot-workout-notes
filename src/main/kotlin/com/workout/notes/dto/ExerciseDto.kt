@@ -5,5 +5,6 @@ data class ExerciseDto(
     val exerciseName: String,
     val exerciseCategory: ExerciseCategory,
     val exerciseType: ExerciseType,
-    val exerciseNotes: String? = null
+    val exerciseNotes: String? = null,
+    val userId: String? = null
 )

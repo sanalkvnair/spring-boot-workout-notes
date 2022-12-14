@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory
 import reactor.core.publisher.Mono
 
 interface WorkoutService {
-    fun createAndUpdateWorkout(workoutDto: WorkoutDto): Mono<WorkoutDto>
-    fun getWorkout(date: String): Mono<WorkoutDto>
+    fun createAndUpdateWorkout(workoutDto: WorkoutDto, userId: String): Mono<WorkoutDto>
+    fun getWorkout(date: String, userId: String): Mono<WorkoutDto>
 }
 
 class WorkoutServiceImpl(private val workoutRepository: WorkoutRepository): WorkoutService {
@@ -19,19 +19,19 @@ class WorkoutServiceImpl(private val workoutRepository: WorkoutRepository): Work
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(WorkoutServiceImpl::class.java)
     }
-    override fun createAndUpdateWorkout(workoutDto: WorkoutDto): Mono<WorkoutDto> {
-        logger.info("Creating/Updating workout for date: ${workoutDto.date} begin.")
-        return workoutRepository.save(workoutModelMapper(workoutDto)).map { workoutDtoMapper(it) }.doOnSuccess {
-            logger.info("Creating/Updating workout for date: ${workoutDto.date} successful.")
+    override fun createAndUpdateWorkout(workoutDto: WorkoutDto, userId: String): Mono<WorkoutDto> {
+        logger.info("Creating/Updating workout for date: ${workoutDto.date} begin for user: $userId.")
+        return workoutRepository.save(workoutModelMapper(workoutDto, userId)).map { workoutDtoMapper(it) }.doOnSuccess {
+            logger.info("Creating/Updating workout for date: ${workoutDto.date} successful for user: $userId.")
         }
     }
 
-    override fun getWorkout(date: String): Mono<WorkoutDto> {
-        return workoutRepository.findById(date).map { workoutDtoMapper(it) }
+    override fun getWorkout(date: String, userId: String): Mono<WorkoutDto> {
+        return workoutRepository.findByDateAndUserId(date, userId).map { workoutDtoMapper(it) }
     }
 
     private fun workoutDtoMapper(workout: Workout): WorkoutDto {
-        val workoutDto = WorkoutDto(workout.date)
+        val workoutDto = WorkoutDto(workout.date, workout.userId)
         workout.workoutRoutines.map { workoutRoutine ->
             val workoutRoutineDto = WorkoutRoutineDto(
                 workoutRoutine.exerciseName,
@@ -55,8 +55,8 @@ class WorkoutServiceImpl(private val workoutRepository: WorkoutRepository): Work
         return workoutDto
     }
 
-    private fun workoutModelMapper(workoutDto: WorkoutDto): Workout {
-        val workout = Workout(workoutDto.date)
+    private fun workoutModelMapper(workoutDto: WorkoutDto, userId: String): Workout {
+        val workout = Workout(workoutDto.date, userId)
         workoutDto.workoutRoutines.map { workoutRoutineDto ->
             val workoutRoutine = WorkoutRoutine(
                 workoutRoutineDto.exerciseName,

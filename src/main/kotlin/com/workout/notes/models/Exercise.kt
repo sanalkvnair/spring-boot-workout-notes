@@ -9,5 +9,6 @@ data class Exercise(
     val exerciseName: String,
     val exerciseCategory: String,
     val exerciseType: String,
-    val exerciseNotes: String? = null
+    val exerciseNotes: String? = null,
+    val userId: String
 )

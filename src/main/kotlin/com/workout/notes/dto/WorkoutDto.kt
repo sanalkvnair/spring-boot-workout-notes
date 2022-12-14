@@ -2,6 +2,7 @@ package com.workout.notes.dto
 
 data class WorkoutDto(
     val date: String,
+    val userId: String? = null,
     val workoutRoutines: MutableList<WorkoutRoutineDto> = mutableListOf()
 )
 

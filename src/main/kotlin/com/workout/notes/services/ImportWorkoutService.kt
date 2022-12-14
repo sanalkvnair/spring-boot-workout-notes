@@ -9,15 +9,17 @@ import reactor.core.publisher.Flux
 import java.util.*
 
 interface ImportWorkoutService {
-    fun importWorkFromFile(filePart: FilePart): Flux<WorkoutDto>
+    fun importWorkFromFile(filePart: FilePart, userId: String): Flux<WorkoutDto>
 }
 
 class ImportWorkoutServiceImpl(private val workoutService: WorkoutService) : ImportWorkoutService {
-    override fun importWorkFromFile(filePart: FilePart): Flux<WorkoutDto> {
+    override fun importWorkFromFile(filePart: FilePart, userId: String): Flux<WorkoutDto> {
         return filePart.content().map { dataBuffer ->
+
+            println("dataBuffer capacity: ${dataBuffer.capacity()}, count: ${dataBuffer.readableByteCount()}")
             val importWorkoutDtoList: MutableList<ImportWorkoutDto> = mutableListOf()
             val workoutDtoList: MutableList<WorkoutDto> = mutableListOf()
-            dataBuffer.asInputStream().bufferedReader()
+            dataBuffer.ensureWritable(340933).asInputStream(true).bufferedReader()
                 .use {
                     val csvParser = CSVParser(
                         it,
@@ -34,7 +36,9 @@ class ImportWorkoutServiceImpl(private val workoutService: WorkoutService) : Imp
                         ).setTrim(true).build()
                     )
                     val csvRecords = csvParser.records
+                    println("No. of records: ${csvRecords.size}")
                     for (csvRecord: CSVRecord in csvRecords) {
+                        println(csvRecord)
                         val importWorkoutDto = ImportWorkoutDto(
                             csvRecord.get("Date"),
                             csvRecord.get("Exercise"),
@@ -69,7 +73,7 @@ class ImportWorkoutServiceImpl(private val workoutService: WorkoutService) : Imp
             Flux.fromIterable(workoutDtoList)
         }.flatMap {it}
             .flatMap { workoutDto ->
-            workoutService.createAndUpdateWorkout(workoutDto)
+            workoutService.createAndUpdateWorkout(workoutDto, userId)
         }
 
     }

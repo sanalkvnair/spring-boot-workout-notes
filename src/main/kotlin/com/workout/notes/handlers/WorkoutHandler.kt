@@ -13,12 +13,13 @@ class WorkoutHandler(private val workoutService: WorkoutService) {
 
     fun getWorkout(serverRequest: ServerRequest): Mono<ServerResponse> {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-            .body(workoutService.getWorkout(serverRequest.pathVariable("date")))
+            .body(workoutService.getWorkout(serverRequest.pathVariable("date"),
+                serverRequest.headers().firstHeader("userId") ?: ""))
     }
 
-    fun createAndUpdateWorkout(sererRequest: ServerRequest): Mono<ServerResponse> {
-        return sererRequest.bodyToMono(WorkoutDto::class.java)
-            .flatMap { workoutService.createAndUpdateWorkout(it) }
+    fun createAndUpdateWorkout(serverRequest: ServerRequest): Mono<ServerResponse> {
+        return serverRequest.bodyToMono(WorkoutDto::class.java)
+            .flatMap { workoutService.createAndUpdateWorkout(it, serverRequest.headers().firstHeader("userId") ?: "") }
             .flatMap {
                 ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(it))
             }

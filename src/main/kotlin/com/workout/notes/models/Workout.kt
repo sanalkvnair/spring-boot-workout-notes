@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 @Document(value = "workouts")
 data class Workout(
     @Id val date: String,
+    val userId: String,
     val workoutRoutines: MutableList<WorkoutRoutine> = mutableListOf()
 )
 

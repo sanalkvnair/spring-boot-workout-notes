@@ -7,4 +7,7 @@ spring:
     mongodb:
       database: workout-notes
       auto-index-creation: true
-
+  webflux:
+    multipart:
+      maxDiskUsagePerPart: 1024KB
+      maxInMemorySize: 1024KB

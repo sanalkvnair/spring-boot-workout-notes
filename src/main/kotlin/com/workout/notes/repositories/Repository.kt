@@ -14,4 +14,5 @@ interface ExerciseRepository : ReactiveMongoRepository<Exercise, String> {
 
 interface WorkoutRepository: ReactiveMongoRepository<Workout, String> {
     fun findByDateAndUserId(date: String, userid: String): Mono<Workout>
+    fun deleteByDateAndUserId(date: String, userid: String): Mono<Void>
 }

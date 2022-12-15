@@ -16,7 +16,6 @@ class ImportWorkoutHandler(private val importWorkoutService: ImportWorkoutServic
         return serverRequest.body(BodyExtractors.toMultipartData()).flatMap { parts ->
             val map: Map<String, Part> = parts.toSingleValueMap()
             val filePart: FilePart = map["file"]!! as FilePart
-            println("Import file information: ${filePart.filename()}, size: ${serverRequest.headers().firstHeader("Content-Length")}")
             importWorkoutService.importWorkFromFile(filePart,
                 serverRequest.headers().firstHeader("userId") ?: "").collectList().flatMap {
                 ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(it.size))

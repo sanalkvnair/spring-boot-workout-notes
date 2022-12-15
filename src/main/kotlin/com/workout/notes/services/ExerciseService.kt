@@ -5,8 +5,6 @@ import com.workout.notes.dto.ExerciseDto
 import com.workout.notes.dto.ExerciseType
 import com.workout.notes.models.Exercise
 import com.workout.notes.repositories.ExerciseRepository
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.UUID
@@ -23,9 +21,6 @@ interface ExerciseService {
 }
 
 class ExerciseServiceImpl(private val exerciseRepository: ExerciseRepository) : ExerciseService {
-    companion object {
-        private final val logger: Logger = LoggerFactory.getLogger(ExerciseServiceImpl::class.java)
-    }
     override fun getWorkouts(userId: String): Flux<ExerciseDto> =  exerciseRepository.findByUserId(userId).map { exerciseDtoMapper(it) }
 
     override fun getWorkout(id: String, userId: String): Mono<ExerciseDto> =  exerciseRepository.findByIdAndUserId(id, userId).map { exerciseDtoMapper(it) }

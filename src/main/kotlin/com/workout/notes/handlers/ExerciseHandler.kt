@@ -21,7 +21,7 @@ class ExerciseHandler(private val exerciseService: ExerciseService) {
     fun getExercises(serverRequest: ServerRequest): Mono<ServerResponse> {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
             .body(exerciseService.getWorkouts(serverRequest.headers().firstHeader("userId") ?: "")).also {
-                logger.info("Exercise list fetched.")
+                logger.debug("Exercise list fetched.")
             }
     }
 
@@ -29,7 +29,7 @@ class ExerciseHandler(private val exerciseService: ExerciseService) {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
             .body(exerciseService.getWorkout(serverRequest.pathVariable("id"),
                 serverRequest.headers().firstHeader("userId") ?: "")).also {
-                logger.info("Exercise ${serverRequest.pathVariable("id")} fetched.")
+                logger.debug("Exercise ${serverRequest.pathVariable("id")} fetched.")
             }
     }
 
@@ -39,7 +39,7 @@ class ExerciseHandler(private val exerciseService: ExerciseService) {
             .flatMap {
                 ServerResponse.created(URI.create("/exercise/${it.id}")).contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(it))
             }.also {
-                logger.info("Exercise saved.")
+                logger.debug("Exercise saved.")
             }
     }
 
@@ -51,14 +51,16 @@ class ExerciseHandler(private val exerciseService: ExerciseService) {
             .flatMap {
                 ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(it))
             }.also {
-                logger.info("Exercise ${serverRequest.pathVariable("id")} updated.")
+                logger.debug("Exercise ${serverRequest.pathVariable("id")} updated.")
             }
     }
 
     fun deleteExercise(serverRequest: ServerRequest): Mono<ServerResponse> {
-        return exerciseService.deleteWorkout(serverRequest.pathVariable("id"),
-            serverRequest.headers().firstHeader("userId") ?: "").then(ServerResponse.noContent().build()).also {
-            logger.info("Exercise ${serverRequest.pathVariable("id")} deleted.")
+        return exerciseService.deleteWorkout(
+            serverRequest.pathVariable("id"),
+            serverRequest.headers().firstHeader("userId") ?: "")
+            .then(ServerResponse.noContent().build()).also {
+            logger.debug("Exercise ${serverRequest.pathVariable("id")} deleted.")
         }
     }
 

@@ -25,4 +25,11 @@ class WorkoutHandler(private val workoutService: WorkoutService) {
             }
     }
 
+    fun deleteWorkout(serverRequest: ServerRequest): Mono<ServerResponse> {
+        return workoutService.deleteWorkout(
+            serverRequest.pathVariable("date"),
+            serverRequest.headers().firstHeader("userId") ?: ""
+        ).then(ServerResponse.noContent().build())
+    }
+
 }

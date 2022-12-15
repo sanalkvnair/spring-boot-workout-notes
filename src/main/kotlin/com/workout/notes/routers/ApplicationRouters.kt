@@ -6,7 +6,11 @@ import com.workout.notes.handlers.WorkoutHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
-import org.springframework.web.reactive.function.server.RequestPredicates.*
+import org.springframework.web.reactive.function.server.RequestPredicates.DELETE
+import org.springframework.web.reactive.function.server.RequestPredicates.GET
+import org.springframework.web.reactive.function.server.RequestPredicates.POST
+import org.springframework.web.reactive.function.server.RequestPredicates.PUT
+import org.springframework.web.reactive.function.server.RequestPredicates.accept
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.RouterFunctions.route
 import org.springframework.web.reactive.function.server.ServerResponse
@@ -25,6 +29,7 @@ class ApplicationRouters {
             .andRoute(GET("/exercise-categories"), exerciseHandler::getExerciseCategories)
             .andRoute(GET("/workout/{date}"), workoutHandler::getWorkout)
             .andRoute(POST("/workout"), workoutHandler::createAndUpdateWorkout)
+            .andRoute(DELETE("/workout/{date}"), workoutHandler::deleteWorkout)
             .andRoute(POST("/import-workout").and(accept(MediaType.MULTIPART_FORM_DATA)), importWorkoutHandler::importWorkout)
     }
 }

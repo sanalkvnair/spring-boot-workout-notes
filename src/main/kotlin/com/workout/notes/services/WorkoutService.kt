@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono
 interface WorkoutService {
     fun createAndUpdateWorkout(workoutDto: WorkoutDto, userId: String): Mono<WorkoutDto>
     fun getWorkout(date: String, userId: String): Mono<WorkoutDto>
+    fun deleteWorkout(date: String, userId: String): Mono<Void>
 }
 
 class WorkoutServiceImpl(private val workoutRepository: WorkoutRepository): WorkoutService {
@@ -20,15 +21,18 @@ class WorkoutServiceImpl(private val workoutRepository: WorkoutRepository): Work
         private val logger: Logger = LoggerFactory.getLogger(WorkoutServiceImpl::class.java)
     }
     override fun createAndUpdateWorkout(workoutDto: WorkoutDto, userId: String): Mono<WorkoutDto> {
-        logger.info("Creating/Updating workout for date: ${workoutDto.date} begin for user: $userId.")
+        logger.debug("Creating/Updating workout for date: ${workoutDto.date} begin for user: $userId.")
         return workoutRepository.save(workoutModelMapper(workoutDto, userId)).map { workoutDtoMapper(it) }.doOnSuccess {
-            logger.info("Creating/Updating workout for date: ${workoutDto.date} successful for user: $userId.")
+            logger.debug("Creating/Updating workout for date: ${workoutDto.date} successful for user: $userId.")
         }
     }
 
     override fun getWorkout(date: String, userId: String): Mono<WorkoutDto> {
+        logger.debug("Get workout for user $userId from date: $date")
         return workoutRepository.findByDateAndUserId(date, userId).map { workoutDtoMapper(it) }
     }
+
+    override fun deleteWorkout(date: String, userId: String): Mono<Void> = workoutRepository.deleteByDateAndUserId(date, userId)
 
     private fun workoutDtoMapper(workout: Workout): WorkoutDto {
         val workoutDto = WorkoutDto(workout.date, workout.userId)
